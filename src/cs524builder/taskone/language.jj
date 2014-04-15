@@ -144,7 +144,7 @@ public void parse() :
 }
 {
   (  
-     arguments = Function()
+     arguments = Variable()
 
      <SEMICOLON>
 
@@ -157,132 +157,93 @@ public void parse() :
 
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
-private List<String> Function() :
+private List<String> Command() :
 {
    List<String> arguments = new ArrayList<String>(); 
    
    String argument;
 }
+{	(
+		< DEFINE >
+
+		{			argument = Define();
+		}
+
+		arguments.add(argument);
+
+		|
+
+		< EXPORT_TO_GNUPLOT >
+
+		{			argument = ExportToGnuPlot();
+		}
+
+		arguments.add(argument);
+
+		|
+
+		< PRINT_XML >
+
+		{			arugment = PrintXML();
+		}
+
+		arguments.add(argument);
+
+	)*
+
+	< SEMICOLON >
+
+	return arguments;
+
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------
+private List<String> ExportToGnuplot() :
 {
-   <IDENTIFIER>
-
-   <LPAREN>
-
-   [ 
-      argument = Variable()
-
-      {
-         arguments.add(argument);      }
-
-      (         <COMMA>
-     
-         argument = Variable()
-         
-         {
-            arguments.add(argument);
-         }
-      )*
-   ]
+  List<String> arguments = new ArrayList<String>(); 
    
-   <RPAREN>
-
-   {      return arguments;
-   }
+   String argument;
 }
+{  < EXPORT_TO_GNUPLOT >
+
+  < LPAREN >
+
+  {    argument = Variable();
+  }
+
+  agruments.add(argument);
+  
+  < COMMA >
+
+  {    argument = Triple();
+  }
+
+  arguments.add(argument);
+
+  < RPAREN >
+
+  {    return arguments;
+  }
+  
 
 
-//----------------------------------------------------------------------------------------------------------------------------------------------------
-private List<int> Triple()
-{
-   List<int> arguments = new ArrayList<int>(); 
-   
-   int argument;
-}
-{
-	< LBRACKET >
-	{		argument = Intger.parseInt(token.image);
-		arguments.add(argument);
-	}
-	< COMMA >
-	{
-		argument = Intger.parseInt(token.image);
-		arguments.add(argument);
-	}
-	< COMMA >
-	{
-		argument = Intger.parseInt(token.image);
-		arguments.add(argument);
-	}
-	< RBRACKET >
-
-	{
-		return arguments;
-	}
-
-
-}
-
-
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------
-private List<String> Volume() :
-{
-   List<String> arguments = new ArrayList<String>(); 
-}
-{
-
-	<VOLUME>
-
-	< ASSIGN >
-
-	arguments = Triple();
-
-	{	  return arguments;
-	}
-}
-
-
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------
-private List<String> Socket() :
-{
-   List<String> arguments = new ArrayList<String>(); 
-}
-{
-
-	<SOCKET>
-
-	< ASSIGN >
-
-	arguments = Triple();
-
-	{
-	  return arguments;
-	}
-}
-
-
-//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------
 private List<String> PrintXML() :
-{
-   List<String> arguments = new ArrayList<String>();
+{	List<String> arguments = new ArrayList<String>();
 
-   String argument;
+	String argument;
 }
-{
+{  < PRINT_XML >
+  < LPAREN >
 
-	<PRINT_XML>
+  {    argument = Variable();
+  }
 
-	< LPAREN >
+  arguments.add(argument);
 
-	argument = variable();
+  {
+    return arguments;
+  }
 
-	< RPAREN >
-
-	argumenst.add(argument);
-
-	{
-	  return arguments;
-	}
-}
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 private String Variable() :

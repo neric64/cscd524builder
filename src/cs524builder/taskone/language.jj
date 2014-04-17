@@ -81,6 +81,15 @@ TOKEN : // keywords
 {
     < DAN : "dan" >
   | < STU : "stu" >
+  | < COLOR : "color" >
+  | < CONNECTS_TO : "connectsTo" >
+  | < DEFINE : "define" >
+  | < EXPORT_TO_GNOPLOT : "exportToGnuplot" >
+  | < ID : "id" >
+  | < NEW : "new" >
+  | < PRINT_XML : "printXML" >
+  | < SOCKET : "socket" >
+  | < VOLUME : "volume" >
 }
 
 

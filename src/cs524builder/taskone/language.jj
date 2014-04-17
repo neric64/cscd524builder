@@ -79,17 +79,17 @@ MORE :
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 TOKEN : // keywords
 {
-    < DAN : "dan" >
-  | < STU : "stu" >
-  | < COLOR : "color" >
+
+  < COLOR : "color" >
   | < CONNECTS_TO : "connectsTo" >
   | < DEFINE : "define" >
-  | < EXPORT_TO_GNOPLOT : "exportToGnuplot" >
+  | < EXPORT_TO_GNUPLOT : "exportToGnuplot" >
   | < ID : "id" >
   | < NEW : "new" >
   | < PRINT_XML : "printXML" >
   | < SOCKET : "socket" >
   | < VOLUME : "volume" >
+  | < AT : "at" >
 }
 
 
@@ -150,10 +150,11 @@ TOKEN : // identifiers
 public void parse() :
 {
    List<String> arguments;
+   //String arguments;
 }
 {
   (  
-     arguments = Variable()
+     arguments = Connections()
 
      <SEMICOLON>
 
@@ -166,92 +167,139 @@ public void parse() :
 
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
-private List<String> Command() :
+private List<String> Connections() :
 {
-   List<String> arguments = new ArrayList<String>(); 
-   
-   String argument;
-}
-{	(
-		< DEFINE >
-
-		{			argument = Define();
-		}
-
-		arguments.add(argument);
-
-		|
-
-		< EXPORT_TO_GNUPLOT >
-
-		{			argument = ExportToGnuPlot();
-		}
-
-		arguments.add(argument);
-
-		|
-
-		< PRINT_XML >
-
-		{			arugment = PrintXML();
-		}
-
-		arguments.add(argument);
-
-	)*
-
-	< SEMICOLON >
-
-	return arguments;
-
-
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------
-private List<String> ExportToGnuplot() :
-{
-  List<String> arguments = new ArrayList<String>(); 
-   
-   String argument;
-}
-{  < EXPORT_TO_GNUPLOT >
-
-  < LPAREN >
-
-  {    argument = Variable();
-  }
-
-  agruments.add(argument);
-  
-  < COMMA >
-
-  {    argument = Triple();
-  }
-
-  arguments.add(argument);
-
-  < RPAREN >
-
-  {    return arguments;
-  }
-  
-
-
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------
-private List<String> PrintXML() :
-{	List<String> arguments = new ArrayList<String>();
-
+	List<String> arguments = new ArrayList<String>();
 	String argument;
 }
-{  < PRINT_XML >
-  < LPAREN >
+{	< CONNECTS_TO >
+	< LPAREN >
 
-  {    argument = Variable();
-  }
+	(
+		//component def
 
-  arguments.add(argument);
+		< AT >
+		arguments = Triple()	)
 
-  {
-    return arguments;
-  }
+	< RPAREN >
+
+	{		return arguments;
+	}
+}
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+private List<String> ExportToGnuplot() :
+{
+	List<String> arguments = new ArrayList<String>();
+	String argument;
+}
+{	< EXPORT_TO_GNUPLOT >
+	< LPAREN >
+
+	argument = Variable()
+
+	< COMMA >
+
+	arguments = Triple()
+
+	{
+		arguments.add(0, argument);
+	}
+
+	< RPAREN >
+
+	{		return arguments;
+	}
+}
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+private List<String> PrintXML() :
+{
+	List<String> arguments = new ArrayList<String>();
+	String argument;
+}
+{	< PRINT_XML >
+	< LPAREN >
+
+	argument = Variable()
+
+	{		arguments.add(argument);
+	}
+
+	< RPAREN >
+
+	{		return arguments;
+	}
+}
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+private List<String> Socket() :
+{
+	List<String> arguments = new ArrayList<String>();
+	String argument;
+}
+{	< SOCKET >
+	< ASSIGN >
+
+	arguments = Triple()
+
+	{		return arguments;
+	}
+}
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+private List<String> Volume() :
+{
+	List<String> arguments = new ArrayList<String>();
+	String argument;
+}
+{	< VOLUME >
+	< ASSIGN >
+
+	arguments = Triple()
+	{
+		return arguments;
+	}
+}
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+private List<String> Triple() :
+{
+	List<String> arguments = new ArrayList<String>();
+	String argument;
+}
+{	< LBRACKET >
+	< LITERAL_NUMBER >
+
+	{		argument = token.image;
+		arguments.add(argument);
+	}
+
+	< COMMA >
+	< LITERAL_NUMBER >
+	
+	{
+		argument = token.image;
+		arguments.add(argument);
+	}
+	
+	< COMMA >
+	< LITERAL_NUMBER >
+
+	{
+		argument = token.image;
+		arguments.add(argument);
+	}
+	
+	< RBRACKET >
+
+	{		return arguments;
+	}
+}
 
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -260,11 +308,26 @@ private String Variable() :
    String variable;
 }
 {
-   <IDENTIFIER>
+	<IDENTIFIER>
+	{
+	    variable = token.image;
 
-   {
-      variable = token.image;
+		return variable;
+	}
+}
 
-      return variable;
-   }
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+private String Identifier() :
+{	String argument;
+}
+{	< ID >
+	< ASSIGN >
+	< LITERAL_STRING >
+
+	{
+		argument = token.image;
+
+		return argument;
+	}
 }

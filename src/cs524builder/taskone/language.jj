@@ -189,18 +189,21 @@ private List<String> Command() :
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 private List<String> Define() :
 {
-	List<String> arguments = new ArrayList<String>();
+	List<String> args = new ArrayList<String>();
 	String argument;
 }
 {	< DEFINE >
 	argument = Variable()
 
+	{		Builder.setId(argument);
+	}
+
 	< ASSIGN >
 
-	arguments = ComponentDefinition()
+	args = ComponentDefinition()
 
-	{		arguments.add(0, argument);
-		return arguments;
+	{		args.add(0, argument);
+		return args;
 	}
 }
 
@@ -209,44 +212,37 @@ private List<String> Define() :
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 private List<String> ComponentDefinition() :
 {
-	List<String> arguments = new ArrayList<String>();
+	List<String> compArgs = new ArrayList<String>();
 	List<String> temp = new ArrayList<String>();
-	Blocks block = new Blocks();
 	String argument;
 }
 {	< LPAREN >
 
 	argument = Identifier()
 
-	arguments = Volume()
-
-	{		block.setVolume(arguments);
-	}
+	compArgs = Volume()
 
 	{
-		block.setComponent(argument);
-		arguments.add(0, argument);
+		Builder.setComponent(argument);
+		
+		compArgs.add(0, argument);
 	}
 
 	temp = Socket()
 
-	{		arguments.addAll(temp);
-		block.setSocket(temp);
+	{		compArgs.addAll(temp);
 	}
 
 	(
-		//I can read three of the blocks, but not four.  When I try to read four gun is skiped and sensor is not.		temp = Connections()
+		//I can read three of the blocks, but not four.  When I try to read four gun is skipped and sensor is not.		temp = Connections()
 
-		{			arguments.addAll(temp);
+		{			compArgs.addAll(temp);
 		}
 	)?
 
 	< RPAREN >
 
-	{
-		System.out.println(block.getComponent());
-		System.out.println(block.getVolume());
-		System.out.println(block.getSocket());		return arguments;
+	{		return compArgs;
 	}
 }
 
@@ -294,6 +290,7 @@ private List<String> ExportToGnuplot() :
 	arguments = Triple()
 
 	{
+		Builder.printGnu(argument, arguments);
 		arguments.add(0, argument);
 	}
 
@@ -307,35 +304,38 @@ private List<String> ExportToGnuplot() :
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 private List<String> PrintXML() :
 {
-	List<String> arguments = new ArrayList<String>();
-	String argument;
+	List<String> print = new ArrayList<String>();
+	String id;
 }
 {	< PRINT_XML >
 	< LPAREN >
 
-	argument = Variable()
+	id = Variable()
 
-	{		arguments.add(argument);
+	{
+		Builder.PrintXML(id);
+		
+		print.add(id);
 	}
 
 	< RPAREN >
 
-	{		return arguments;
+	{		return print;
 	}
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 private List<String> Socket() :
 {
-	List<String> arguments = new ArrayList<String>();
-	String argument;
+	List<String> sNums = new ArrayList<String>();
 }
 {	< SOCKET >
 	< ASSIGN >
 
-	arguments = Triple()
+	sNums = Triple()
 
-	{		return arguments;
+	{
+		Builder.setSocket(sNums);		return sNums;
 	}
 }
 
@@ -343,15 +343,15 @@ private List<String> Socket() :
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 private List<String> Volume() :
 {
-	List<String> arguments = new ArrayList<String>();
-	String argument;
+	List<String> vNums = new ArrayList<String>();
 }
 {	< VOLUME >
 	< ASSIGN >
 
-	arguments = Triple()
+	vNums = Triple()
 	{
-		return arguments;
+		Builder.setVolume(vNums);
+		return vNums;
 	}
 }
 
@@ -359,35 +359,35 @@ private List<String> Volume() :
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 private List<String> Triple() :
 {
-	List<String> arguments = new ArrayList<String>();
-	String argument;
+	List<String> nums = new ArrayList<String>();
+	String num;
 }
 {	< LBRACKET >
 	< LITERAL_NUMBER >
 
-	{		argument = token.image;
-		arguments.add(argument);
+	{		num = token.image;
+		nums.add(num);
 	}
 
 	< COMMA >
 	< LITERAL_NUMBER >
 	
 	{
-		argument = token.image;
-		arguments.add(argument);
+		num = token.image;
+		nums.add(num);
 	}
 	
 	< COMMA >
 	< LITERAL_NUMBER >
 
 	{
-		argument = token.image;
-		arguments.add(argument);
+		num = token.image;
+		nums.add(num);
 	}
 	
 	< RBRACKET >
 
-	{		return arguments;
+	{		return nums;
 	}
 }
 
@@ -409,15 +409,15 @@ private String Variable() :
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------
 private String Identifier() :
-{	String argument;
+{	String name;
 }
 {	< ID >
 	< ASSIGN >
 	< LITERAL_STRING >
 
 	{
-		argument = token.image;
+		name = token.image;
 
-		return argument;
+		return name;
 	}
 }

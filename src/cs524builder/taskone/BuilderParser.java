@@ -70,46 +70,42 @@ public class BuilderParser implements BuilderParserConstants {
   }
 
   final private List<String> Define() throws ParseException {
-        List<String> arguments = new ArrayList<String>();
+        List<String> args = new ArrayList<String>();
         String argument;
     jj_consume_token(DEFINE);
     argument = Variable();
+                Builder.setId(argument);
     jj_consume_token(ASSIGN);
-    arguments = ComponentDefinition();
-                arguments.add(0, argument);
-                {if (true) return arguments;}
+    args = ComponentDefinition();
+                args.add(0, argument);
+                {if (true) return args;}
     throw new Error("Missing return statement in function");
   }
 
   final private List<String> ComponentDefinition() throws ParseException {
-        List<String> arguments = new ArrayList<String>();
+        List<String> compArgs = new ArrayList<String>();
         List<String> temp = new ArrayList<String>();
-        Blocks block = new Blocks();
         String argument;
     jj_consume_token(LPAREN);
     argument = Identifier();
-    arguments = Volume();
-                block.setVolume(arguments);
-                block.setComponent(argument);
-                arguments.add(0, argument);
+    compArgs = Volume();
+                Builder.setComponent(argument);
+
+                compArgs.add(0, argument);
     temp = Socket();
-                arguments.addAll(temp);
-                block.setSocket(temp);
+                compArgs.addAll(temp);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case CONNECTS_TO:
-      //I can read three of the blocks, but not four.  When I try to read four gun is skiped and sensor is not.
+      //I can read three of the blocks, but not four.  When I try to read four gun is skipped and sensor is not.
                       temp = Connections();
-                        arguments.addAll(temp);
+                        compArgs.addAll(temp);
       break;
     default:
       jj_la1[2] = jj_gen;
       ;
     }
     jj_consume_token(RPAREN);
-                System.out.println(block.getComponent());
-                System.out.println(block.getVolume());
-                System.out.println(block.getSocket());
-                {if (true) return arguments;}
+                {if (true) return compArgs;}
     throw new Error("Missing return statement in function");
   }
 
@@ -147,6 +143,7 @@ public class BuilderParser implements BuilderParserConstants {
     argument = Variable();
     jj_consume_token(COMMA);
     arguments = Triple();
+                Builder.printGnu(argument, arguments);
                 arguments.add(0, argument);
     jj_consume_token(RPAREN);
                 {if (true) return arguments;}
@@ -154,54 +151,56 @@ public class BuilderParser implements BuilderParserConstants {
   }
 
   final private List<String> PrintXML() throws ParseException {
-        List<String> arguments = new ArrayList<String>();
-        String argument;
+        List<String> print = new ArrayList<String>();
+        String id;
     jj_consume_token(PRINT_XML);
     jj_consume_token(LPAREN);
-    argument = Variable();
-                arguments.add(argument);
+    id = Variable();
+                Builder.PrintXML(id);
+
+                print.add(id);
     jj_consume_token(RPAREN);
-                {if (true) return arguments;}
+                {if (true) return print;}
     throw new Error("Missing return statement in function");
   }
 
   final private List<String> Socket() throws ParseException {
-        List<String> arguments = new ArrayList<String>();
-        String argument;
+        List<String> sNums = new ArrayList<String>();
     jj_consume_token(SOCKET);
     jj_consume_token(ASSIGN);
-    arguments = Triple();
-                {if (true) return arguments;}
+    sNums = Triple();
+                Builder.setSocket(sNums);
+                {if (true) return sNums;}
     throw new Error("Missing return statement in function");
   }
 
   final private List<String> Volume() throws ParseException {
-        List<String> arguments = new ArrayList<String>();
-        String argument;
+        List<String> vNums = new ArrayList<String>();
     jj_consume_token(VOLUME);
     jj_consume_token(ASSIGN);
-    arguments = Triple();
-                {if (true) return arguments;}
+    vNums = Triple();
+                Builder.setVolume(vNums);
+                {if (true) return vNums;}
     throw new Error("Missing return statement in function");
   }
 
   final private List<String> Triple() throws ParseException {
-        List<String> arguments = new ArrayList<String>();
-        String argument;
+        List<String> nums = new ArrayList<String>();
+        String num;
     jj_consume_token(LBRACKET);
     jj_consume_token(LITERAL_NUMBER);
-                argument = token.image;
-                arguments.add(argument);
+                num = token.image;
+                nums.add(num);
     jj_consume_token(COMMA);
     jj_consume_token(LITERAL_NUMBER);
-                argument = token.image;
-                arguments.add(argument);
+                num = token.image;
+                nums.add(num);
     jj_consume_token(COMMA);
     jj_consume_token(LITERAL_NUMBER);
-                argument = token.image;
-                arguments.add(argument);
+                num = token.image;
+                nums.add(num);
     jj_consume_token(RBRACKET);
-                {if (true) return arguments;}
+                {if (true) return nums;}
     throw new Error("Missing return statement in function");
   }
 
@@ -215,13 +214,13 @@ public class BuilderParser implements BuilderParserConstants {
   }
 
   final private String Identifier() throws ParseException {
-        String argument;
+        String name;
     jj_consume_token(ID);
     jj_consume_token(ASSIGN);
     jj_consume_token(LITERAL_STRING);
-                argument = token.image;
+                name = token.image;
 
-                {if (true) return argument;}
+                {if (true) return name;}
     throw new Error("Missing return statement in function");
   }
 

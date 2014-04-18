@@ -7,3 +7,6 @@ define a = (
            );
 
 
+printXML(a);
+
+exportToGnuplot(a,[0,0,0]);

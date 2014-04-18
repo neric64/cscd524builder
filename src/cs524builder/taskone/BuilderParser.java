@@ -30,28 +30,110 @@ public class BuilderParser implements BuilderParserConstants {
    List<String> arguments;
     label_1:
     while (true) {
+      arguments = Command();
+        System.out.println("arguments: "+ arguments);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case CONNECTS_TO:
+      case DEFINE:
+      case EXPORT_TO_GNUPLOT:
+      case PRINT_XML:
         ;
         break;
       default:
         jj_la1[0] = jj_gen;
         break label_1;
       }
-      arguments = Connections();
-      jj_consume_token(SEMICOLON);
-        System.out.println("arguments: "+ arguments);
     }
     jj_consume_token(0);
   }
 
+  final private List<String> Command() throws ParseException {
+        List<String> arguments = new ArrayList<String>();
+        String argument;
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case DEFINE:
+      arguments = Define();
+      break;
+    case EXPORT_TO_GNUPLOT:
+      arguments = ExportToGnuplot();
+      break;
+    case PRINT_XML:
+      arguments = PrintXML();
+      break;
+    default:
+      jj_la1[1] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+    jj_consume_token(SEMICOLON);
+                {if (true) return arguments;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final private List<String> Define() throws ParseException {
+        List<String> arguments = new ArrayList<String>();
+        String argument;
+    jj_consume_token(DEFINE);
+    argument = Variable();
+    jj_consume_token(ASSIGN);
+    arguments = ComponentDefinition();
+                arguments.add(0, argument);
+                {if (true) return arguments;}
+    throw new Error("Missing return statement in function");
+  }
+
+  final private List<String> ComponentDefinition() throws ParseException {
+        List<String> arguments = new ArrayList<String>();
+        List<String> temp = new ArrayList<String>();
+        Blocks block = new Blocks();
+        String argument;
+    jj_consume_token(LPAREN);
+    argument = Identifier();
+    arguments = Volume();
+                block.setVolume(arguments);
+                block.setComponent(argument);
+                arguments.add(0, argument);
+    temp = Socket();
+                arguments.addAll(temp);
+                block.setSocket(temp);
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case CONNECTS_TO:
+      //I can read three of the blocks, but not four.  When I try to read four gun is skiped and sensor is not.
+                      temp = Connections();
+                        arguments.addAll(temp);
+      break;
+    default:
+      jj_la1[2] = jj_gen;
+      ;
+    }
+    jj_consume_token(RPAREN);
+                System.out.println(block.getComponent());
+                System.out.println(block.getVolume());
+                System.out.println(block.getSocket());
+                {if (true) return arguments;}
+    throw new Error("Missing return statement in function");
+  }
+
   final private List<String> Connections() throws ParseException {
         List<String> arguments = new ArrayList<String>();
+        List<String> temp = new ArrayList<String>();
         String argument;
     jj_consume_token(CONNECTS_TO);
     jj_consume_token(LPAREN);
-    jj_consume_token(AT);
-    arguments = Triple();
+    label_2:
+    while (true) {
+      temp = ComponentDefinition();
+      jj_consume_token(AT);
+      arguments = Triple();
+                        arguments.addAll(0, temp);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case LPAREN:
+        ;
+        break;
+      default:
+        jj_la1[3] = jj_gen;
+        break label_2;
+      }
+    }
     jj_consume_token(RPAREN);
                 {if (true) return arguments;}
     throw new Error("Missing return statement in function");
@@ -152,7 +234,7 @@ public class BuilderParser implements BuilderParserConstants {
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[1];
+  final private int[] jj_la1 = new int[4];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -160,10 +242,10 @@ public class BuilderParser implements BuilderParserConstants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x1000,};
+      jj_la1_0 = new int[] {0x26000,0x26000,0x1000,0x10000000,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,};
+      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,};
    }
 
   /** Constructor with InputStream. */
@@ -177,7 +259,7 @@ public class BuilderParser implements BuilderParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 1; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 4; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -191,7 +273,7 @@ public class BuilderParser implements BuilderParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 1; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 4; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -201,7 +283,7 @@ public class BuilderParser implements BuilderParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 1; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 4; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -211,7 +293,7 @@ public class BuilderParser implements BuilderParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 1; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 4; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -220,7 +302,7 @@ public class BuilderParser implements BuilderParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 1; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 4; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -229,7 +311,7 @@ public class BuilderParser implements BuilderParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 1; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 4; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -285,7 +367,7 @@ public class BuilderParser implements BuilderParserConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 4; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

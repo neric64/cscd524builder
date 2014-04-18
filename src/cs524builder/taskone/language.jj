@@ -150,19 +150,104 @@ TOKEN : // identifiers
 public void parse() :
 {
    List<String> arguments;
-   //String arguments;
 }
 {
   (  
-     arguments = Connections()
-
-     <SEMICOLON>
+     arguments = Command()
 
      {
         System.out.println("arguments: "+ arguments);     }
-  )*
+  )+
 
   <EOF>
+}
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+private List<String> Command() :
+{
+	List<String> arguments = new ArrayList<String>();
+	String argument;
+}
+{	(		arguments = Define()
+
+		|
+		arguments = ExportToGnuplot()
+
+		|
+
+		arguments = PrintXML()
+	)
+
+	< SEMICOLON >
+
+	{		return arguments;
+	}
+}
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+private List<String> Define() :
+{
+	List<String> arguments = new ArrayList<String>();
+	String argument;
+}
+{	< DEFINE >
+	argument = Variable()
+
+	< ASSIGN >
+
+	arguments = ComponentDefinition()
+
+	{		arguments.add(0, argument);
+		return arguments;
+	}
+}
+
+
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------
+private List<String> ComponentDefinition() :
+{
+	List<String> arguments = new ArrayList<String>();
+	List<String> temp = new ArrayList<String>();
+	Blocks block = new Blocks();
+	String argument;
+}
+{	< LPAREN >
+
+	argument = Identifier()
+
+	arguments = Volume()
+
+	{		block.setVolume(arguments);
+	}
+
+	{
+		block.setComponent(argument);
+		arguments.add(0, argument);
+	}
+
+	temp = Socket()
+
+	{		arguments.addAll(temp);
+		block.setSocket(temp);
+	}
+
+	(
+		//I can read three of the blocks, but not four.  When I try to read four gun is skiped and sensor is not.		temp = Connections()
+
+		{			arguments.addAll(temp);
+		}
+	)?
+
+	< RPAREN >
+
+	{
+		System.out.println(block.getComponent());
+		System.out.println(block.getVolume());
+		System.out.println(block.getSocket());		return arguments;
+	}
 }
 
 
@@ -170,16 +255,21 @@ public void parse() :
 private List<String> Connections() :
 {
 	List<String> arguments = new ArrayList<String>();
+	List<String> temp = new ArrayList<String>();
 	String argument;
 }
 {	< CONNECTS_TO >
 	< LPAREN >
 
 	(
-		//component def
+		temp = ComponentDefinition()
 
 		< AT >
-		arguments = Triple()	)
+		arguments = Triple()
+
+		{			arguments.addAll(0, temp);
+		}
+			)+
 
 	< RPAREN >
 
